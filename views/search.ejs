@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="search.css">
+</head>
+<body>
+    <div class="full_body">
+        <div class="title">Search</div>
+        <div class="search_box">
+            <input type = "text" placeholder="Search" class="form-input" id = "search_input">
+            <button class="search">Search</button>
+
+        </div>
+    </div>
+    <div class="book-cards">
+    </div>
+</body>
+<script>
+    var search_input = document.getElementById("search_input");
+    var card = document.getElementsByClassName("book-cards")[0];
+    document.getElementsByClassName("search")[0].addEventListener("click" , () => {
+        console.log(search_input.value);
+        const query = search_input.value;
+        if (query)
+        {
+            showBooks('/books/'+query);
+        }
+    });
+    function showBooks(movies)
+    {
+        card.innerHTML = "";
+        const httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET' , movies);
+        httpRequest.send();
+        httpRequest.onreadystatechange = function(){
+            if (this.readyState == 4 && this.status == 200)
+            {
+                book_data = JSON.parse(this.responseText);
+                book_data.forEach(element => {
+                    book_display(element);
+                });
+            }
+        }
+    }
+
+    function book_display(book)
+    {
+        const bookElm = document.createElement("div");
+        bookElm.classList.add("book-card");
+        bookElm.innerHTML = `
+            <div class="card">
+                <div class="book-description">
+                   <span class = "book-title"><b>Name</b><span class="value">${book}</span></span> 
+                   <button onclick = 'borrow("${book}")'>Borrow</button>
+                </div>
+            </div>
+        `;
+        card.appendChild(bookElm);
+    }
+
+    function borrow(book)
+    {
+        const httpRequest = new XMLHttpRequest();
+        httpRequest.open('POST' , `/borrow`);
+        httpRequest.send({book});
+    }
+
+</script>
+</html>
